@@ -57,7 +57,6 @@ graph = GraphAPI(access_token)
 
 source = (graph.get('114497825365282/feed'))
 
-n = 0
 
 for idx, data in enumerate(source['data']):
     if (re.search('', str(data), re.I) or re.search('', str(data), re.I))  and (re.search('ofereço', str(data), re.I)): #encontra as mensagens que cabem nessa lógica

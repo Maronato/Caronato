@@ -19,26 +19,6 @@
       <!-- column-name preço -->
       <column type="gchararray"/>
     </columns>
-    <data>
-      <row>
-        <col id="0" translatable="yes">5</col>
-        <col id="1" translatable="yes">4</col>
-        <col id="2" translatable="yes">20:00</col>
-        <col id="3" translatable="yes">15</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">0</col>
-        <col id="1" translatable="yes">1</col>
-        <col id="2" translatable="yes">15:00</col>
-        <col id="3" translatable="yes">20</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">0</col>
-        <col id="1" translatable="yes">0</col>
-        <col id="2" translatable="yes">10:00</col>
-        <col id="3" translatable="yes">10</col>
-      </row>
-    </data>
   </object>
   <object class="GtkWindow" id="MainWindow">
     <property name="can_focus">False</property>
@@ -59,7 +39,7 @@
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
-                  <object class="GtkLabel">
+                  <object class="GtkLabel" id="key">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="halign">center</property>
@@ -101,78 +81,91 @@
               </packing>
             </child>
             <child>
-              <object class="GtkTreeView" id="resultados">
+              <object class="GtkScrolledWindow">
+                <property name="height_request">400</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="margin_left">20</property>
                 <property name="margin_top">20</property>
-                <property name="vscroll_policy">natural</property>
-                <property name="model">liststore1</property>
-                <property name="reorderable">True</property>
-                <child internal-child="selection">
-                  <object class="GtkTreeSelection"/>
-                </child>
+                <property name="hscrollbar_policy">never</property>
+                <property name="window_placement_set">False</property>
+                <property name="shadow_type">in</property>
                 <child>
-                  <object class="GtkTreeViewColumn" id="likes_tree">
-                    <property name="resizable">True</property>
-                    <property name="title" translatable="yes">Likes</property>
-                    <property name="clickable">True</property>
+                  <object class="GtkTreeView" id="treeview">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="model">liststore1</property>
                     <property name="reorderable">True</property>
-                    <property name="sort_indicator">True</property>
-                    <property name="sort_column_id">0</property>
-                    <child>
-                      <object class="GtkCellRendererText" id="likes_cell"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
+                    <child internal-child="selection">
+                      <object class="GtkTreeSelection"/>
                     </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkTreeViewColumn" id="inbox_tree">
-                    <property name="resizable">True</property>
-                    <property name="title" translatable="yes">Inbox</property>
-                    <property name="clickable">True</property>
-                    <property name="reorderable">True</property>
-                    <property name="sort_indicator">True</property>
-                    <property name="sort_column_id">1</property>
                     <child>
-                      <object class="GtkCellRendererText" id="inbox_cell"/>
-                      <attributes>
-                        <attribute name="text">1</attribute>
-                      </attributes>
+                      <object class="GtkTreeViewColumn" id="likes_tree">
+                        <property name="resizable">True</property>
+                        <property name="sizing">autosize</property>
+                        <property name="title" translatable="yes">Likes</property>
+                        <property name="clickable">True</property>
+                        <property name="reorderable">True</property>
+                        <property name="sort_indicator">True</property>
+                        <property name="sort_column_id">0</property>
+                        <child>
+                          <object class="GtkCellRendererText" id="likes_cell"/>
+                          <attributes>
+                            <attribute name="text">0</attribute>
+                          </attributes>
+                        </child>
+                      </object>
                     </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkTreeViewColumn" id="hora_tree">
-                    <property name="resizable">True</property>
-                    <property name="title" translatable="yes">Hora</property>
-                    <property name="clickable">True</property>
-                    <property name="reorderable">True</property>
-                    <property name="sort_indicator">True</property>
-                    <property name="sort_column_id">2</property>
                     <child>
-                      <object class="GtkCellRendererText" id="hora_cell"/>
-                      <attributes>
-                        <attribute name="text">2</attribute>
-                      </attributes>
+                      <object class="GtkTreeViewColumn" id="inbox_tree">
+                        <property name="resizable">True</property>
+                        <property name="sizing">autosize</property>
+                        <property name="title" translatable="yes">Inbox</property>
+                        <property name="clickable">True</property>
+                        <property name="reorderable">True</property>
+                        <property name="sort_indicator">True</property>
+                        <property name="sort_column_id">1</property>
+                        <child>
+                          <object class="GtkCellRendererText" id="inbox_cell"/>
+                          <attributes>
+                            <attribute name="text">1</attribute>
+                          </attributes>
+                        </child>
+                      </object>
                     </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkTreeViewColumn" id="preço_tree">
-                    <property name="resizable">True</property>
-                    <property name="title" translatable="yes">Preço</property>
-                    <property name="clickable">True</property>
-                    <property name="reorderable">True</property>
-                    <property name="sort_indicator">True</property>
-                    <property name="sort_column_id">3</property>
                     <child>
-                      <object class="GtkCellRendererText" id="preço_cell"/>
-                      <attributes>
-                        <attribute name="text">3</attribute>
-                      </attributes>
+                      <object class="GtkTreeViewColumn" id="hora_tree">
+                        <property name="resizable">True</property>
+                        <property name="sizing">autosize</property>
+                        <property name="title" translatable="yes">Hora</property>
+                        <property name="clickable">True</property>
+                        <property name="reorderable">True</property>
+                        <property name="sort_indicator">True</property>
+                        <property name="sort_column_id">2</property>
+                        <child>
+                          <object class="GtkCellRendererText" id="hora_cell"/>
+                          <attributes>
+                            <attribute name="text">2</attribute>
+                          </attributes>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkTreeViewColumn" id="preço_tree">
+                        <property name="resizable">True</property>
+                        <property name="sizing">autosize</property>
+                        <property name="title" translatable="yes">Preço</property>
+                        <property name="clickable">True</property>
+                        <property name="reorderable">True</property>
+                        <property name="sort_indicator">True</property>
+                        <property name="sort_column_id">3</property>
+                        <child>
+                          <object class="GtkCellRendererText" id="preço_cell"/>
+                          <attributes>
+                            <attribute name="text">3</attribute>
+                          </attributes>
+                        </child>
+                      </object>
                     </child>
                   </object>
                 </child>

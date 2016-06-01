@@ -14,6 +14,18 @@ Printar melhores resultados com número de resultados, hora de publicação e n�
 '''
 
 
+class Post:
+    likes = 0
+    inbox = 0
+    link = ''
+    message = ''
+    id = ''
+    dia_post = ''
+    hora_post = ''
+    dia_viagem = ''
+    hora_viagem = ''
+
+
 def config_read():
     print("lendo o arquivo")
     if os.path.isfile('token.txt'):
@@ -25,14 +37,16 @@ def config_read():
     else:
         get_token()
 
+
 def config_write():
     conf = open('token.txt', 'w')
     print("escrevendo no arquivo")
     conf.write(access_token)
     conf.close()
 
+
 def get_token():
-    #pegar token do input
+    # pegar token do input
     global access_token
     access_token = input("Entre com um token")
     test_token()
@@ -52,27 +66,29 @@ def test_token():
 
 
 config_read()
-print(access_token)
+
 graph = GraphAPI(access_token)
 
-source = (graph.get('114497825365282/feed'))
+source = (graph.get('114497825365282/feed'))    #é um dict
 
 
-for idx, data in enumerate(source['data']):
-    if (re.search('', str(data), re.I) or re.search('', str(data), re.I))  and (re.search('ofereço', str(data), re.I)): #encontra as mensagens que cabem nessa lógica
-        message = re.findall(r'(?<=\'message\': \').*?(?=\')', str(data))   #encontra e seleciona apenas o texto dos posts
-        id = re.findall(r'(?<=\'id\': \'114497825365282_).*?(?=\')', str(data)) #pega a id dos comentários
-        time = re.findall(r'(?<=\'updated_time\': \').*?(?=\')', str(data)) #pega a hora de postagem do comentário
+for data in source['data']:
+    if (re.search('', str(data), re.I) or re.search('', str(data), re.I)) and (re.search('ofereço', str(data), re.I)):  # encontra as mensagens que cabem nessa lógica
 
-        id = "".join(id)    #transforma o id de lista para string
-        likes_source = (graph.get('114497825365282_'+id+'?fields=likes,comments'))  #faz mais um get pra conseguir os likes e comentarios
-        comments = len(re.findall("inbox", str(likes_source), re.I))    #define o numero de comentarios como o numero de 'inbox'
-        likes = len(re.findall("name", str(likes_source))) - len(re.findall("from", str(likes_source))) #encontra o numero de likes pelo numero de 'name' menos o numero de 'from'. Essencialmente me dá o numero de likes
+        #separado em subdicts
 
-        print("Likes: "+str(likes))  #printa likes
-        print("Inbox: "+str(comments))  #printa comments
+        message = data['message']
+        id = data["id"]
+        time = data["updated_time"]
 
-        print("".join(message))     #printa o texto do cara
-        print("https://www.facebook.com/groups/caronas.unicamp/permalink/"+id)  #printa o link pra mensagem
-        print("".join(time))    #printa o horario, ainda nao parseado
+        aval_source = (graph.get( id + '?fields=likes,comments'))  # faz mais um get pra conseguir os likes e comentarios
+        comments = len(re.findall("inbox", str(aval_source), re.I))  # define o numero de comentarios como o numero de 'inbox'
+        likes = len(re.findall("name", str(aval_source))) - len(re.findall("from", str(aval_source)))  # encontra o numero de likes pelo numero de 'name' menos o numero de 'from'. Essencialmente me dá o numero de likes
+
+        print("Likes: " + str(likes))  # printa likes
+        print("Inbox: " + str(comments))  # printa comments
+
+        print("".join(message))  # printa o texto do cara
+        print("https://www.facebook.com/" + id)  # printa o link pra mensagem
+        print("".join(time))  # printa o horario, ainda nao parseado
         print("")

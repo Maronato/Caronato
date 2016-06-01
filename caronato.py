@@ -14,17 +14,6 @@ Printar melhores resultados com número de resultados, hora de publicação e n�
 '''
 
 
-class Post:
-    likes = 0
-    inbox = 0
-    link = ''
-    message = ''
-    id = ''
-    dia_post = ''
-    hora_post = ''
-    dia_viagem = ''
-    hora_viagem = ''
-
 
 def config_read():
     print("lendo o arquivo")

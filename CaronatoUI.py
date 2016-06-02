@@ -21,7 +21,6 @@ class Handler(Gtk.Window):
         self.builder = Gtk.Builder()
 
         config_read()
-
         lista = builder.get_object("liststore1")
 
         lista.clear()
@@ -57,7 +56,8 @@ class Handler(Gtk.Window):
             Gtk.Statusbar.push(status, 0, 'Baixando página...')
             down_source()
             apply_filter()
-
+        elif token is "":
+            config_read()
         else:
             test_token()
 
@@ -117,9 +117,11 @@ class Handler(Gtk.Window):
     #   Pega o texto do token_entry
     def on_token_entry_changed(self, entry, data=None):
         global token
+        global token_validity
         token = entry.get_text()
         #Gtk.Statusbar.push(status, 0, 'Token Inválido. Entre outro')
         print(token)
+        token_validity = 0
 
     #   Pega o texto de hora1
     def on_hora1_changed(self, hora, data=None):
@@ -225,7 +227,12 @@ def down_source():
     print("baixando source")
     graph = GraphAPI(token)
     global source
-    source = (graph.get('114497825365282/feed'))
+    try:
+        source = (graph.get('114497825365282/feed'))
+    except:
+        Gtk.Statusbar.push(status, 0, 'Seu token parece estar errado...')
+        print("Erro de exception na hora de puxar feed")
+        return
     print(source)
 
 #   Aplicação de filtros

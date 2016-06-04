@@ -8,6 +8,23 @@ import datetime
 
 print("Dependências carregadas")
 
+'''     Considerações
+
+Quando clicar duas vezes no item, mostrar uma nova janela com a mensagem original e com um link pro post(pensar em
+adicionar botão pra dar like, comentar, etc) (aprender como aplicar text wrap pra fazer a mensagem ficar na linha
+
+Na hora de aplicar os filtros de destino e pá, usar o module Unidecode pra remover os acentos tanto do texto original
+quanto do texto que vai ser pesquisado. Assim é possível comparar os dois de forma completa.
+
+Na hora de pesquisar textos, descobrir forma de verificar a posição do texto na string pra saber qual veio antes de
+qual. Assim é possível ter uma boa ideia de qual o destino e origem.
+
+Pensar em forma de ler texto antes e depois de valores e datas para saber se são valores ou datas. Isso pode ser bem
+complicado e vou provavelmente quebrar bastante a cabeça com isso.
+
+'''
+
+
 
 version = 0.2
 

@@ -59,7 +59,7 @@ class Handler(Gtk.Window):
         if token_validity:
             Gtk.Statusbar.push(status, 0, 'Baixando página...')
             down_source()
-            apply_filter()
+            filtrar_tipo()
         elif token is "":
             config_read()
         else:
@@ -137,7 +137,7 @@ class Handler(Gtk.Window):
     def on_preço_changed(self, pre):
         global preço
         temp = pre.get_text()
-        r = re.compile('[0-9]?[0-9]')
+        r = re.compile('\d{2}')
         if r.match(temp):
             preço = temp
             print(preço)
@@ -219,9 +219,9 @@ def down_source():
 
 
 #   Aplicação de filtros
-def apply_filter():
+def filtrar_tipo():
     Gtk.Statusbar.push(status, 0, 'Parseando dados...')
-    print("Parseando dados iniciais")
+    print("Filtrando tipo")
 
     for data in source['data']:
         if re.search(tipo, str(data), re.I):
@@ -230,12 +230,9 @@ def apply_filter():
             id = data["id"]
             time = data["updated_time"]
 
-            now = datetime.datetime.now()
-
             if not check_time_validity(hora1, hora2, date):
                 print("Você nao devia ter chegado até aqui")
             print("sucesso")
-
 
 def check_time_validity(time1, time2, day):
     dt1, dt2 = day + " " + time1, day + " " + time2

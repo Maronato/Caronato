@@ -24,6 +24,8 @@
       <column type="gchararray"/>
       <!-- column-name disponibilidade -->
       <column type="gchararray"/>
+      <!-- column-name nome -->
+      <column type="gchararray"/>
     </columns>
   </object>
   <object class="GtkWindow" id="MainWindow">
@@ -183,7 +185,7 @@
                       <object class="GtkTreeViewColumn" id="link_tree">
                         <property name="visible">False</property>
                         <property name="resizable">True</property>
-                        <property name="title" translatable="yes">column</property>
+                        <property name="title" translatable="yes">Link</property>
                         <property name="reorderable">True</property>
                         <property name="sort_indicator">True</property>
                         <property name="sort_column_id">4</property>
@@ -198,7 +200,10 @@
                     <child>
                       <object class="GtkTreeViewColumn" id="texto_tree">
                         <property name="visible">False</property>
-                        <property name="title" translatable="yes">column</property>
+                        <property name="resizable">True</property>
+                        <property name="title" translatable="yes">Texto</property>
+                        <property name="reorderable">True</property>
+                        <property name="sort_indicator">True</property>
                         <property name="sort_column_id">5</property>
                         <child>
                           <object class="GtkCellRendererText" id="texto_cell"/>
@@ -222,6 +227,22 @@
                           <object class="GtkCellRendererText" id="disponibilidade_cell"/>
                           <attributes>
                             <attribute name="text">6</attribute>
+                          </attributes>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkTreeViewColumn" id="nome_tree">
+                        <property name="visible">False</property>
+                        <property name="resizable">True</property>
+                        <property name="title" translatable="yes">Nome</property>
+                        <property name="reorderable">True</property>
+                        <property name="sort_indicator">True</property>
+                        <property name="sort_column_id">7</property>
+                        <child>
+                          <object class="GtkCellRendererText" id="nome_cell"/>
+                          <attributes>
+                            <attribute name="text">7</attribute>
                           </attributes>
                         </child>
                       </object>
@@ -373,7 +394,7 @@
                     <property name="has_entry">True</property>
                     <items>
                       <item id="0" translatable="yes">São Paulo</item>
-                      <item id="1" translatable="yes">Barão Geraldo</item>
+                      <item id="1" translatable="yes">Barão</item>
                       <item id="2" translatable="yes">Campinas</item>
                     </items>
                     <signal name="changed" handler="on_saindo_changed" swapped="no"/>
@@ -422,7 +443,7 @@
                     <property name="has_entry">True</property>
                     <items>
                       <item id="0" translatable="yes">São Paulo</item>
-                      <item id="1" translatable="yes">Barão Geraldo</item>
+                      <item id="1" translatable="yes">Barão</item>
                       <item id="2" translatable="yes">Campinas</item>
                     </items>
                     <signal name="changed" handler="on_indo_changed" swapped="no"/>
@@ -695,7 +716,7 @@
             <property name="can_focus">False</property>
             <property name="layout_style">end</property>
             <child>
-              <object class="GtkLinkButton" id="linkbutton1">
+              <object class="GtkLinkButton" id="link_carona">
                 <property name="label" translatable="yes">Abrir carona</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
@@ -849,7 +870,7 @@ Inbox!</property>
       </object>
     </child>
     <action-widgets>
-      <action-widget response="1">linkbutton1</action-widget>
+      <action-widget response="1">link_carona</action-widget>
       <action-widget response="0">button1</action-widget>
     </action-widgets>
   </object>

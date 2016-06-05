@@ -15,10 +15,10 @@ print("Dependências carregadas")
 - Quando clicar duas vezes no item, mostrar uma nova janela com a mensagem original e com um link pro post(pensar em
 adicionar botão pra dar like, comentar, etc) (aprender como aplicar text wrap pra fazer a mensagem ficar na linha
 
-Na hora de aplicar os filtros de destino e pá, usar o module Unidecode pra remover os acentos tanto do texto original
+-Na hora de aplicar os filtros de destino e pá, usar o module Unidecode pra remover os acentos tanto do texto original
 quanto do texto que vai ser pesquisado. Assim é possível comparar os dois de forma completa.
 
-Na hora de pesquisar textos, descobrir forma de verificar a posição do texto na string pra saber qual veio antes de
+-Na hora de pesquisar textos, descobrir forma de verificar a posição do texto na string pra saber qual veio antes de
 qual. Assim é possível ter uma boa ideia de qual o destino e origem.
 
 Pensar em forma de ler texto antes e depois de valores e datas para saber se são valores ou datas. Isso pode ser bem
@@ -26,49 +26,42 @@ complicado e vou provavelmente quebrar bastante a cabeça com isso. Além disso,
 da semana também. Possivelmente criar uma função especializada em pesquisar apenas uma dada string no texto e retornar
 a posição dela, se ela existe e pá. Com essa função eu poderia, em outras funções, processar melhor o texto para
 descobrir informações.
-Por exemplo: Quero pesquisar a cidade de origem e destino. Crio uma função que vai cuidar dessa parte (origem/destino)
+-Por exemplo: Quero pesquisar a cidade de origem e destino. Crio uma função que vai cuidar dessa parte (origem/destino)
 e uso a função de pesquisa para localizar onde estão as palavras(se existirem) Depois disso eu identifico qual é origem
 e qual é destino pela posição relativa de uma e da outra.
-Por exemplo 2: quero pesquisar por um valor de preço. Uso a função de pesquisa para encontrar todos os números iguais ou
+-Por exemplo 2: quero pesquisar por um valor de preço. Uso a função de pesquisa para encontrar todos os números iguais ou
 menores que esse que não são os da hora(talvez fique complicada essa parte, pois vou ter que saber exatamente onde
  começa e termina a informação da hora para depois pesquisar pelo preço em uma região que não seja essa) e checar,
 usando a função de pesquisa, onde tem 'reais' ou 'R$'. Ambos devem estar imediatamente depois ou antes, respectivamente,
 do valor encontrado.
 
-Criar função para converter horas de 12:00 para datetime e/ou 12h para datetime. Fácil. só identificar que tipo é e
+-Criar função para converter horas de 12:00 para datetime e/ou 12h para datetime. Fácil. só identificar que tipo é e
 aplicar um if para saber o formato. Comparar esse horario com o horário especificado
 
-No popup que vai mostrar o texto, considerar mostrar o nome da pessoa também. Vai que tem gente que prefere mulher, sl
+-No popup que vai mostrar o texto, considerar mostrar o nome da pessoa também. Vai que tem gente que prefere mulher, sl
 
-Considerar, ao invés de mostrar o número de likes e inbox no treeview, o fazer no popup. No treeview mostrar um
+-Considerar, ao invés de mostrar o número de likes e inbox no treeview, o fazer no popup. No treeview mostrar um
 "coeficiente de vaga" que vai, sei lá, somar o numero de likes e dividir por 8 (2*4), multiplicar por 5, subtrair 5 e
 tirar o módulo == |(vagas+inbox)*5/8 - 5| Dessa forma eu vou ter um valor que vai de 5 até menos que zero e representa,
 nessa escala, as chances de ainda ter vaga disponível na carona. Se for 5 então as chances são altas, e se for <=0 são
  muito baixas. Usar estrelhinhas (?) para representar isso.
 
  Pensar em uma forma de ter o 'sort' padrão da treeview nas estrelhinhas (pensar em nome para dar para essa coluna)
+
+Remover 'resizable' do treeflow
 '''
 
-version = 0.2
+version = 0.85
 
 
 abrev_cidades = {'Sao Paulo': {'SP ', ' sampa '},
            'Sao Carlos': {' SC ', ' sanca '}}
 
 
-
-
-software_list = [("Firefox", "2002", "C++", "5", '1', "5", '1'),
-                 ("Eclipse", "2004", "Java", "3", '2', "5", '1'),
-                 ("Pitivi", "2004", "Python", "2", '3', "5", '1'),
-                 ("Netbeans", "1996", "Java", "1", '4', "5", '1')]
-
-
 class Handler(Gtk.Window):
     def __init__(self):
         print("Carregando configurações iniciais")
         self.builder = Gtk.Builder()
-        lista = builder.get_object("liststore1")
         lista.clear()
 
         #   Pre-set variables
@@ -89,11 +82,6 @@ class Handler(Gtk.Window):
         print("Fazendo leitura inicial da base de token")
         config_read()
 
-        for soft in software_list:
-            lista.append(list(soft))
-            for soft2 in software_list:
-                lista.append(list(soft2))
-
     # Funções de Handler
     #   Termina o programa
     def on_delete_window(*args):
@@ -104,6 +92,7 @@ class Handler(Gtk.Window):
     def pesquisar(self, find_b):
         Gtk.Statusbar.push(status, 0, '')
         if token_validity:
+            lista.clear()
             filtrar_tipo()
         elif token is "":
             config_read()
@@ -198,12 +187,19 @@ class Handler(Gtk.Window):
         texto = builder.get_object("texto_carona")
         like = builder.get_object("likes_carona")
         inb = builder.get_object("inbox_carona")
-        nome.set_text("Funciona!")
+        link = builder.get_object("link_carona")
+        nome.set_text(model[column][7] + ":")
+        like.set_text("Likes: " + model[column][0])
+        inb.set_text("Inbox's: " + model[column][1])
+        texto.set_text(model[column][5])
+        link.set_uri(model[column][4])
 
-        print(model[column][4])  # Link pro comentário
+        # ("Likes", "Inbox", "Hora", "Preço", 'Link', "Texto", 'Disponibilidade', 'Nome')
+
         response = postwindow.run()
-
         if not response:
+            postwindow.hide()
+        else:
             postwindow.hide()
 
     # Esconde popup quando aperta o botão de close
@@ -217,6 +213,7 @@ builder.add_from_file("GUI.glade")
 print("Construindo janela")
 window = builder.get_object("MainWindow")
 postwindow = builder.get_object("PostWindow")
+lista = builder.get_object("liststore1")
 Gtk.Window.set_title(window, "Caronato v" + str(version))
 window.show_all()
 
@@ -340,9 +337,12 @@ def pesquisa_preço(string):
         return -1
 
 
+def pesquisa_dia():
+    #   fazer algo com a date
+    return 1
+
 #   Aplicação de filtros
 def filtrar_tipo():
-    Gtk.Statusbar.push(status, 0, 'Parseando dados...')
     print("Filtrando tipo")
     pesq_iter = 0
     source = down_source()
@@ -391,32 +391,46 @@ def filtrar_hora(pesq_iter, temp_message):
     return 0
 
 
+def filtrar_dia(pesq_iter, temp_message):
+    #   Quando será que eu vou fazer isso?
+    pesquisa_dia()
+    return 1
+
 def aplicar_filtos(pesq_iter, temp_id, temp_message):
     if filtrar_hora(pesq_iter, temp_message) and filtrar_preço(pesq_iter, temp_message) \
-            and filtrar_ori_dest(pesq_iter, temp_message):
+            and filtrar_ori_dest(pesq_iter, temp_message) and filtrar_dia(pesq_iter, temp_message):
+        coef, name, likes, comments = proc_likes(temp_id)
+        link = 'https://facebook.com/' + temp_id
         print(temp_hora)
         print(temp_preço)
-        print('https://facebook.com/' + temp_id)
-        print("O coeficiente de disponibilidade é: %d" % proc_likes(temp_id))
-        print('*' * int(proc_likes(temp_id)))
-
+        print(link)
+        print("O coeficiente de disponibilidade é: %d" % coef)
+        print(name)
+        # ("Likes", "Inbox", "Hora", "Preço", 'Link', "Texto", 'Disponibilidade', 'Nome')
+        entry = [str(likes), str(comments), str(temp_hora), str('R$ ' + str(temp_preço)), str(link), str(temp_message), str(coef), str(name)]
+        lista.append(list(entry))
 
 def proc_likes(temp_id):
     graph = GraphAPI(token)
-    l_source = (graph.get(temp_id + '?fields=likes,comments'))
-    comments = len(re.findall("inbox", str(l_source), re.I))
-    likes = len(re.findall("name", str(l_source))) - len(re.findall("from", str(l_source)))
+    l_source = (graph.get(temp_id + '?fields=likes,comments,from'))
+    try:
+        likes = len(l_source['likes']['data'])
+    except KeyError:
+        likes = 0
+    comments = 0
+    try:
+        for data in l_source['comments']['data']:
+            if re.findall('inbox', data['message'], re.I):
+                comments += 1
+    except KeyError:
+        comments = 0
+    name = l_source['from']['name']
     print(comments)
     print(likes)
-
     coef = - ((likes + 3 * comments) * 5 / 16 - 5)
     if coef < 0:
         coef = 0
-    return math.ceil(coef)
-
-
-
-
+    return math.ceil(coef), name, likes, comments
 
 
 

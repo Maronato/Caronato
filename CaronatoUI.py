@@ -324,11 +324,9 @@ def pesquisa_palavra(palavra, string):
     else:
         #   Ciclar abreviações de cidades
         for cidade in abrev_cidades:
-            print("roda")
-            if palavra is cidade:
-                print("uati is hapen")
+            if re.match(palavra, cidade, re.I):
                 for abrev in abrev_cidades[cidade]:
-                    posição = re.search(palavra, string, re.I)
+                    posição = re.search(abrev, string, re.I)
                     if posição:
                         return posição.start()
         return -1
@@ -351,16 +349,21 @@ def filtrar_tipo():
     print("Filtrando tipo")
 
     for data in source['data']:
-        if re.search(tipo, str(data), re.I):
+        if re.search(tipo, str(data), re.I) and not re.search('lotad', str(data), re.I):
             global temp_message
             global temp_id
             global pesq_iter
             temp_message = data["message"]
             temp_id = data["id"]
             pesq_iter += 1
-            print(temp_message)
-            if filtrar_ori_dest():
-                print("funciona")
+
+            if filtrar_ori_dest() and filtrar_hora() and filtrar_preço():
+                #print("funciona")
+                print('')
+                print('')
+                print(temp_message)
+                print('')
+                print('')
 
 
 def filtrar_preço():
@@ -375,8 +378,6 @@ def filtrar_preço():
 
 
 def filtrar_ori_dest():
-    print(indo)
-    print(pesquisa_palavra(indo, unidecode(temp_message)))
     if 0 <= pesquisa_palavra(saindo, unidecode(temp_message)) <= pesquisa_palavra(indo, unidecode(temp_message)):
         #   Não precisa adicionar nada à matriz, só continuar
         print("Iteração %d origem e destino OK" % pesq_iter)

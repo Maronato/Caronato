@@ -1,5 +1,4 @@
 import gi
-
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 import os.path
@@ -7,6 +6,7 @@ import re
 from facepy import GraphAPI
 import datetime
 from unidecode import unidecode
+import math
 
 print("Dependências carregadas")
 
@@ -85,8 +85,6 @@ class Handler(Gtk.Window):
         date = "%d %d %d" % (date.year, date.month, date.day)
         global token
         token = ''
-        global pesq_iter
-        pesq_iter = 0
 
         print("Fazendo leitura inicial da base de token")
         config_read()
@@ -106,8 +104,6 @@ class Handler(Gtk.Window):
     def pesquisar(self, find_b):
         Gtk.Statusbar.push(status, 0, '')
         if token_validity:
-            Gtk.Statusbar.push(status, 0, 'Baixando página...')
-            down_source()
             filtrar_tipo()
         elif token is "":
             config_read()
@@ -272,14 +268,15 @@ def test_token():
 def down_source():
     print("Baixando source do Facebook")
     graph = GraphAPI(token)
-    global source
+    #global source
     try:
         source = (graph.get('114497825365282/feed'))
     except:
         Gtk.Statusbar.push(status, 0, 'Seu token parece estar errado...')
         print("Erro de exception na hora de puxar feed")
-        return
+        return 0
     print(source)
+    return source
 
 
 def check_time_validity(time1, time2, day):
@@ -347,37 +344,31 @@ def pesquisa_preço(string):
 def filtrar_tipo():
     Gtk.Statusbar.push(status, 0, 'Parseando dados...')
     print("Filtrando tipo")
-
+    pesq_iter = 0
+    source = down_source()
     for data in source['data']:
         if re.search(tipo, str(data), re.I) and not re.search('lotad', str(data), re.I):
-            global temp_message
-            global temp_id
-            global pesq_iter
             temp_message = data["message"]
             temp_id = data["id"]
             pesq_iter += 1
 
-            if filtrar_ori_dest() and filtrar_hora() and filtrar_preço():
-                #print("funciona")
-                print('')
-                print('')
-                print(temp_message)
-                print('')
-                print('')
+            aplicar_filtos(pesq_iter, temp_id, temp_message)
+
+    Gtk.Statusbar.push(status, 0, 'Finalizado')
 
 
-def filtrar_preço():
+def filtrar_preço(pesq_iter, temp_message):
+    global temp_preço
     temp_preço = pesquisa_preço(temp_message)
     if 0 <= temp_preço <= int(preço):
-        #   Adicionar temp_preço à matriz em pesq_iter
         print("Iteração %d preço %d" % (pesq_iter, temp_preço))
-        return 1  # Retorna 1 se existir. Caso contrário, retorna 0 e termina a filtragem para esse item
+        return 1
     else:
         print("Iteração %d preço não bate" % pesq_iter)
         return 0
 
 
-def filtrar_ori_dest():
+def filtrar_ori_dest(pesq_iter, temp_message):
     if 0 <= pesquisa_palavra(saindo, unidecode(temp_message)) <= pesquisa_palavra(indo, unidecode(temp_message)):
         #   Não precisa adicionar nada à matriz, só continuar
         print("Iteração %d origem e destino OK" % pesq_iter)
@@ -387,18 +378,44 @@ def filtrar_ori_dest():
         return 0
 
 
-def filtrar_hora():
+def filtrar_hora(pesq_iter, temp_message):
+    global temp_hora
     temp_hora = pesquisa_hora(temp_message)
-    print(temp_hora+hora1+hora2)
     try:
         if converter_hora(hora1) <= converter_hora(temp_hora) <= converter_hora(hora2):
-            #   Adicionar temp_hora matriz em pesq_iter
             print("Iteração %d hora %s" % (pesq_iter, temp_hora))
-            return 1  # Retorna 1 se existir. Caso contrário, retorna 0 e termina a filtragem para esse item
+            return 1
         print("Iteração %d hora não bate" % pesq_iter)
     except:
         print("Iteração %d hora não existe" % pesq_iter)
     return 0
+
+
+def aplicar_filtos(pesq_iter, temp_id, temp_message):
+    if filtrar_hora(pesq_iter, temp_message) and filtrar_preço(pesq_iter, temp_message) \
+            and filtrar_ori_dest(pesq_iter, temp_message):
+        print(temp_hora)
+        print(temp_preço)
+        print('https://facebook.com/' + temp_id)
+        print("O coeficiente de disponibilidade é: %d" % proc_likes(temp_id))
+        print('*' * int(proc_likes(temp_id)))
+
+
+def proc_likes(temp_id):
+    graph = GraphAPI(token)
+    l_source = (graph.get(temp_id + '?fields=likes,comments'))
+    comments = len(re.findall("inbox", str(l_source), re.I))
+    likes = len(re.findall("name", str(l_source))) - len(re.findall("from", str(l_source)))
+    print(comments)
+    print(likes)
+
+    coef = - ((likes + 3 * comments) * 5 / 16 - 5)
+    if coef < 0:
+        coef = 0
+    return math.ceil(coef)
+
+
+
 
 
 

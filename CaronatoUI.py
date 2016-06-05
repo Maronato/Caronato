@@ -1,16 +1,18 @@
 import gi
+
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 import os.path
 import re
 from facepy import GraphAPI
 import datetime
+from unidecode import unidecode
 
 print("Dependências carregadas")
 
 '''     Considerações
 
-Quando clicar duas vezes no item, mostrar uma nova janela com a mensagem original e com um link pro post(pensar em
+- Quando clicar duas vezes no item, mostrar uma nova janela com a mensagem original e com um link pro post(pensar em
 adicionar botão pra dar like, comentar, etc) (aprender como aplicar text wrap pra fazer a mensagem ficar na linha
 
 Na hora de aplicar os filtros de destino e pá, usar o module Unidecode pra remover os acentos tanto do texto original
@@ -47,14 +49,19 @@ nessa escala, as chances de ainda ter vaga disponível na carona. Se for 5 entã
  Pensar em uma forma de ter o 'sort' padrão da treeview nas estrelhinhas (pensar em nome para dar para essa coluna)
 '''
 
-
-
 version = 0.2
 
-software_list = [("Firefox", "2002", "C++", "5", '1'),
-                 ("Eclipse", "2004", "Java", "3", '2'),
-                 ("Pitivi", "2004", "Python", "2", '3'),
-                 ("Netbeans", "1996", "Java", "1", '4')]
+
+abrev_cidades = {'Sao Paulo': {'SP ', ' sampa '},
+           'Sao Carlos': {' SC ', ' sanca '}}
+
+
+
+
+software_list = [("Firefox", "2002", "C++", "5", '1', "5", '1'),
+                 ("Eclipse", "2004", "Java", "3", '2', "5", '1'),
+                 ("Pitivi", "2004", "Python", "2", '3', "5", '1'),
+                 ("Netbeans", "1996", "Java", "1", '4', "5", '1')]
 
 
 class Handler(Gtk.Window):
@@ -78,6 +85,8 @@ class Handler(Gtk.Window):
         date = "%d %d %d" % (date.year, date.month, date.day)
         global token
         token = ''
+        global pesq_iter
+        pesq_iter = 0
 
         print("Fazendo leitura inicial da base de token")
         config_read()
@@ -120,10 +129,10 @@ class Handler(Gtk.Window):
         tree_iter = combo.get_active_iter()
         if tree_iter is not None:
             model = combo.get_model()
-            saindo = model[tree_iter][0]
+            saindo = unidecode(model[tree_iter][0])
         else:
             entry = combo.get_child()
-            saindo = entry.get_text()
+            saindo = unidecode(entry.get_text())
         print("saindo: " + saindo)
 
     #   Pega o texto do comboboxtext indo
@@ -132,10 +141,10 @@ class Handler(Gtk.Window):
         tree_iter = combo.get_active_iter()
         if tree_iter is not None:
             model = combo.get_model()
-            indo = model[tree_iter][0]
+            indo = unidecode(model[tree_iter][0])
         else:
             entry = combo.get_child()
-            indo = entry.get_text()
+            indo = unidecode(entry.get_text())
         print("indo: " + indo)
 
     #   Pega o texto do comboboxtext tipo
@@ -189,7 +198,21 @@ class Handler(Gtk.Window):
     # Executar ação ao clicar em alguma coisa nos resultados
     def tree_click(self, path, column, data):
         model = Gtk.TreeView.get_model(path)
+        nome = builder.get_object("nome_carona")
+        texto = builder.get_object("texto_carona")
+        like = builder.get_object("likes_carona")
+        inb = builder.get_object("inbox_carona")
+        nome.set_text("Funciona!")
+
         print(model[column][4])  # Link pro comentário
+        response = postwindow.run()
+
+        if not response:
+            postwindow.hide()
+
+    # Esconde popup quando aperta o botão de close
+    def close_popup(self, close_popup):
+        postwindow.hide()
 
 
 print("Carregando arquivo de UI")
@@ -197,6 +220,7 @@ builder = Gtk.Builder()
 builder.add_from_file("GUI.glade")
 print("Construindo janela")
 window = builder.get_object("MainWindow")
+postwindow = builder.get_object("PostWindow")
 Gtk.Window.set_title(window, "Caronato v" + str(version))
 window.show_all()
 
@@ -258,22 +282,6 @@ def down_source():
     print(source)
 
 
-#   Aplicação de filtros
-def filtrar_tipo():
-    Gtk.Statusbar.push(status, 0, 'Parseando dados...')
-    print("Filtrando tipo")
-
-    for data in source['data']:
-        if re.search(tipo, str(data), re.I):
-
-            message = data["message"]
-            id = data["id"]
-            time = data["updated_time"]
-
-            if not check_time_validity(hora1, hora2, date):
-                print("Você nao devia ter chegado até aqui")
-            print("sucesso")
-
 def check_time_validity(time1, time2, day):
     dt1, dt2 = day + " " + time1, day + " " + time2
     try:
@@ -288,6 +296,110 @@ def check_time_validity(time1, time2, day):
     Gtk.Statusbar.push(status, 0, 'Matemática não é seu forte')
     print("Erro: Horas ou dia conflitantes")
     return 0
+
+
+def converter_hora(hora):
+    hora = "%s %s" % (date, hora)
+    return datetime.datetime.strptime(hora, "%Y %m %d %H:%M")
+
+
+def pesquisa_hora(string):
+    s1 = re.findall(r"\d+:\d+", string, re.I)
+    s2 = re.findall(r"(\d+(\s+)?h)", string, re.I)
+    if s1:
+        s1 = str(re.findall(r'\d+:\d+', str(s1[0]))[0])
+        return s1
+    elif s2:
+        s2 = "%s:00" % str(re.findall(r'\d+', str(s2[0]))[0])
+        return s2
+    else:
+        return -1
+
+
+def pesquisa_palavra(palavra, string):
+    posição = re.search(palavra, string, re.I)
+
+    if posição:
+        return posição.start()
+    else:
+        #   Ciclar abreviações de cidades
+        for cidade in abrev_cidades:
+            print("roda")
+            if palavra is cidade:
+                print("uati is hapen")
+                for abrev in abrev_cidades[cidade]:
+                    posição = re.search(palavra, string, re.I)
+                    if posição:
+                        return posição.start()
+        return -1
+
+
+def pesquisa_preço(string):
+    s1 = re.findall(r"((\d+(,\d+)?)(?= reais))", string, re.I)
+    s2 = re.findall(r"(?<=\$)((\s+)?\d+)", string, re.I)
+    if s1:
+        return int(re.findall(r'\d{2}', str(s1[0][0]))[0])
+    elif s2:
+        return int(re.findall(r'\d{2}', str(s2[0][0]))[0])
+    else:
+        return -1
+
+
+#   Aplicação de filtros
+def filtrar_tipo():
+    Gtk.Statusbar.push(status, 0, 'Parseando dados...')
+    print("Filtrando tipo")
+
+    for data in source['data']:
+        if re.search(tipo, str(data), re.I):
+            global temp_message
+            global temp_id
+            global pesq_iter
+            temp_message = data["message"]
+            temp_id = data["id"]
+            pesq_iter += 1
+            print(temp_message)
+            if filtrar_ori_dest():
+                print("funciona")
+
+
+def filtrar_preço():
+    temp_preço = pesquisa_preço(temp_message)
+    if 0 <= temp_preço <= int(preço):
+        #   Adicionar temp_preço à matriz em pesq_iter
+        print("Iteração %d preço %d" % (pesq_iter, temp_preço))
+        return 1  # Retorna 1 se existir. Caso contrário, retorna 0 e termina a filtragem para esse item
+    else:
+        print("Iteração %d preço não bate" % pesq_iter)
+        return 0
+
+
+def filtrar_ori_dest():
+    print(indo)
+    print(pesquisa_palavra(indo, unidecode(temp_message)))
+    if 0 <= pesquisa_palavra(saindo, unidecode(temp_message)) <= pesquisa_palavra(indo, unidecode(temp_message)):
+        #   Não precisa adicionar nada à matriz, só continuar
+        print("Iteração %d origem e destino OK" % pesq_iter)
+        return 1
+    else:
+        print("Iteração %d origem e destino errados" % pesq_iter)
+        return 0
+
+
+def filtrar_hora():
+    temp_hora = pesquisa_hora(temp_message)
+    print(temp_hora+hora1+hora2)
+    try:
+        if converter_hora(hora1) <= converter_hora(temp_hora) <= converter_hora(hora2):
+            #   Adicionar temp_hora matriz em pesq_iter
+            print("Iteração %d hora %s" % (pesq_iter, temp_hora))
+            return 1  # Retorna 1 se existir. Caso contrário, retorna 0 e termina a filtragem para esse item
+        print("Iteração %d hora não bate" % pesq_iter)
+    except:
+        print("Iteração %d hora não existe" % pesq_iter)
+    return 0
+
+
 
 
 print("Conectando sinais e iniciando GTK")

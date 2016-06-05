@@ -20,12 +20,17 @@
       <column type="gchararray"/>
       <!-- column-name link -->
       <column type="gchararray"/>
+      <!-- column-name texto -->
+      <column type="gchararray"/>
+      <!-- column-name disponibilidade -->
+      <column type="gchararray"/>
     </columns>
   </object>
   <object class="GtkWindow" id="MainWindow">
     <property name="can_focus">False</property>
     <property name="border_width">10</property>
     <property name="title" translatable="yes">Caronato</property>
+    <property name="window_position">center</property>
     <signal name="delete-event" handler="on_delete_window" swapped="no"/>
     <child>
       <object class="GtkGrid">
@@ -98,16 +103,17 @@
                     <property name="can_focus">True</property>
                     <property name="model">liststore1</property>
                     <property name="reorderable">True</property>
+                    <property name="hover_selection">True</property>
                     <signal name="row-activated" handler="tree_click" swapped="no"/>
                     <child internal-child="selection">
                       <object class="GtkTreeSelection"/>
                     </child>
                     <child>
                       <object class="GtkTreeViewColumn" id="likes_tree">
+                        <property name="visible">False</property>
                         <property name="resizable">True</property>
                         <property name="sizing">autosize</property>
                         <property name="title" translatable="yes">Likes</property>
-                        <property name="clickable">True</property>
                         <property name="reorderable">True</property>
                         <property name="sort_indicator">True</property>
                         <property name="sort_column_id">0</property>
@@ -121,6 +127,7 @@
                     </child>
                     <child>
                       <object class="GtkTreeViewColumn" id="inbox_tree">
+                        <property name="visible">False</property>
                         <property name="resizable">True</property>
                         <property name="sizing">autosize</property>
                         <property name="title" translatable="yes">Inbox</property>
@@ -139,7 +146,8 @@
                     <child>
                       <object class="GtkTreeViewColumn" id="hora_tree">
                         <property name="resizable">True</property>
-                        <property name="sizing">autosize</property>
+                        <property name="sizing">fixed</property>
+                        <property name="fixed_width">64</property>
                         <property name="title" translatable="yes">Hora</property>
                         <property name="clickable">True</property>
                         <property name="reorderable">True</property>
@@ -156,7 +164,8 @@
                     <child>
                       <object class="GtkTreeViewColumn" id="preço_tree">
                         <property name="resizable">True</property>
-                        <property name="sizing">autosize</property>
+                        <property name="sizing">fixed</property>
+                        <property name="fixed_width">67</property>
                         <property name="title" translatable="yes">Preço</property>
                         <property name="clickable">True</property>
                         <property name="reorderable">True</property>
@@ -179,9 +188,40 @@
                         <property name="sort_indicator">True</property>
                         <property name="sort_column_id">4</property>
                         <child>
-                          <object class="GtkCellRendererText"/>
+                          <object class="GtkCellRendererText" id="link_cell"/>
                           <attributes>
                             <attribute name="text">4</attribute>
+                          </attributes>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkTreeViewColumn" id="texto_tree">
+                        <property name="visible">False</property>
+                        <property name="title" translatable="yes">column</property>
+                        <property name="sort_column_id">5</property>
+                        <child>
+                          <object class="GtkCellRendererText" id="texto_cell"/>
+                          <attributes>
+                            <attribute name="text">5</attribute>
+                          </attributes>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkTreeViewColumn" id="disponibilidade_tree">
+                        <property name="resizable">True</property>
+                        <property name="sizing">fixed</property>
+                        <property name="fixed_width">135</property>
+                        <property name="title" translatable="yes">Disponibilidade</property>
+                        <property name="clickable">True</property>
+                        <property name="reorderable">True</property>
+                        <property name="sort_indicator">True</property>
+                        <property name="sort_column_id">6</property>
+                        <child>
+                          <object class="GtkCellRendererText" id="disponibilidade_cell"/>
+                          <attributes>
+                            <attribute name="text">6</attribute>
                           </attributes>
                         </child>
                       </object>
@@ -630,6 +670,188 @@
         </child>
       </object>
     </child>
+  </object>
+  <object class="GtkDialog" id="PostWindow">
+    <property name="width_request">350</property>
+    <property name="can_focus">False</property>
+    <property name="border_width">6</property>
+    <property name="type">popup</property>
+    <property name="title" translatable="yes">Post da Carona</property>
+    <property name="resizable">False</property>
+    <property name="window_position">center-on-parent</property>
+    <property name="default_width">350</property>
+    <property name="destroy_with_parent">True</property>
+    <property name="type_hint">dialog</property>
+    <property name="gravity">center</property>
+    <property name="transient_for">MainWindow</property>
+    <child internal-child="vbox">
+      <object class="GtkBox">
+        <property name="width_request">350</property>
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox">
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+            <child>
+              <object class="GtkLinkButton" id="linkbutton1">
+                <property name="label" translatable="yes">Abrir carona</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="relief">none</property>
+                <property name="uri">http://glade.gnome.org</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="button1">
+                <property name="label" translatable="yes">Fechar</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="close_popup">
+            <property name="label">gtk-close</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+            <property name="halign">end</property>
+            <property name="use_stock">True</property>
+            <property name="image_position">right</property>
+            <property name="always_show_image">True</property>
+            <signal name="clicked" handler="close_popup" swapped="no"/>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="GtkLabel" id="nome_carona">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="halign">start</property>
+                <property name="margin_left">15</property>
+                <property name="margin_bottom">10</property>
+                <property name="label" translatable="yes">Carolina Vazquez diz:</property>
+                <attributes>
+                  <attribute name="weight" value="bold"/>
+                  <attribute name="scale" value="2"/>
+                  <attribute name="size" value="7000"/>
+                </attributes>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="texto_carona">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">[Ofereço] 
+Domingo 05/06 às 19:30
+São Paulo (Metrô Butantã) -&gt; aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Bagagem pequena!!!
+R$20,00
+Inbox!</property>
+                <property name="wrap">True</property>
+                <property name="wrap_mode">word-char</property>
+                <property name="max_width_chars">0</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkGrid">
+                <property name="width_request">200</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="halign">center</property>
+                <property name="margin_top">10</property>
+                <property name="margin_bottom">10</property>
+                <child>
+                  <object class="GtkLabel" id="likes_carona">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="hexpand">True</property>
+                    <property name="label" translatable="yes">Likes: 0</property>
+                    <property name="justify">center</property>
+                    <attributes>
+                      <attribute name="weight" value="bold"/>
+                    </attributes>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="inbox_carona">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="hexpand">True</property>
+                    <property name="label" translatable="yes">Inbox: 2</property>
+                    <property name="justify">right</property>
+                    <attributes>
+                      <attribute name="weight" value="bold"/>
+                    </attributes>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">0</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">2</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+    <action-widgets>
+      <action-widget response="1">linkbutton1</action-widget>
+      <action-widget response="0">button1</action-widget>
+    </action-widgets>
   </object>
   <object class="GtkListStore" id="name_store">
     <columns>

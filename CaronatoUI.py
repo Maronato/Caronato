@@ -1,16 +1,18 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 import os.path
 import re
-from facepy import GraphAPI
+from facebook import GraphAPI
 import datetime
 from unidecode import unidecode
 import math
 
 print("Dependências carregadas")
 
-'''     Considerações
+'''     Consideracões
 
 - Quando clicar duas vezes no item, mostrar uma nova janela com a mensagem original e com um link pro post(pensar em
 adicionar botão pra dar like, comentar, etc) (aprender como aplicar text wrap pra fazer a mensagem ficar na linha
@@ -18,24 +20,24 @@ adicionar botão pra dar like, comentar, etc) (aprender como aplicar text wrap p
 -Na hora de aplicar os filtros de destino e pá, usar o module Unidecode pra remover os acentos tanto do texto original
 quanto do texto que vai ser pesquisado. Assim é possível comparar os dois de forma completa.
 
--Na hora de pesquisar textos, descobrir forma de verificar a posição do texto na string pra saber qual veio antes de
+-Na hora de pesquisar textos, descobrir forma de verificar a posicão do texto na string pra saber qual veio antes de
 qual. Assim é possível ter uma boa ideia de qual o destino e origem.
 
 Pensar em forma de ler texto antes e depois de valores e datas para saber se são valores ou datas. Isso pode ser bem
-complicado e vou provavelmente quebrar bastante a cabeça com isso. Além disso, não esquecer de pesquisar usando o dia
-da semana também. Possivelmente criar uma função especializada em pesquisar apenas uma dada string no texto e retornar
-a posição dela, se ela existe e pá. Com essa função eu poderia, em outras funções, processar melhor o texto para
-descobrir informações.
--Por exemplo: Quero pesquisar a cidade de origem e destino. Crio uma função que vai cuidar dessa parte (origem/destino)
-e uso a função de pesquisa para localizar onde estão as palavras(se existirem) Depois disso eu identifico qual é origem
-e qual é destino pela posição relativa de uma e da outra.
--Por exemplo 2: quero pesquisar por um valor de preço. Uso a função de pesquisa para encontrar todos os números iguais ou
+complicado e vou provavelmente quebrar bastante a cabeca com isso. Além disso, não esquecer de pesquisar usando o dia
+da semana também. Possivelmente criar uma funcão especializada em pesquisar apenas uma dada string no texto e retornar
+a posicão dela, se ela existe e pá. Com essa funcão eu poderia, em outras funcões, processar melhor o texto para
+descobrir informacões.
+-Por exemplo: Quero pesquisar a cidade de origem e destino. Crio uma funcão que vai cuidar dessa parte (origem/destino)
+e uso a funcão de pesquisa para localizar onde estão as palavras(se existirem) Depois disso eu identifico qual é origem
+e qual é destino pela posicão relativa de uma e da outra.
+-Por exemplo 2: quero pesquisar por um valor de preco. Uso a funcão de pesquisa para encontrar todos os números iguais ou
 menores que esse que não são os da hora(talvez fique complicada essa parte, pois vou ter que saber exatamente onde
- começa e termina a informação da hora para depois pesquisar pelo preço em uma região que não seja essa) e checar,
-usando a função de pesquisa, onde tem 'reais' ou 'R$'. Ambos devem estar imediatamente depois ou antes, respectivamente,
+ comeca e termina a informacão da hora para depois pesquisar pelo preco em uma região que não seja essa) e checar,
+usando a funcão de pesquisa, onde tem 'reais' ou 'R$'. Ambos devem estar imediatamente depois ou antes, respectivamente,
 do valor encontrado.
 
--Criar função para converter horas de 12:00 para datetime e/ou 12h para datetime. Fácil. só identificar que tipo é e
+-Criar funcão para converter horas de 12:00 para datetime e/ou 12h para datetime. Fácil. só identificar que tipo é e
 aplicar um if para saber o formato. Comparar esse horario com o horário especificado
 
 -No popup que vai mostrar o texto, considerar mostrar o nome da pessoa também. Vai que tem gente que prefere mulher, sl
@@ -60,19 +62,19 @@ abrev_cidades = {'Sao Paulo': {'SP ', ' sampa '},
 
 class Handler(Gtk.Window):
     def __init__(self):
-        print("Carregando configurações iniciais")
+        print("Carregando configuracões iniciais")
         self.builder = Gtk.Builder()
         lista.clear()
 
         #   Pre-set variables
         global tipo
-        tipo = 'ofereço'
+        tipo = 'ofereco'
         global hora1
         hora1 = '00:00'
         global hora2
         hora2 = '23:59'
-        global preço
-        preço = '00'
+        global preco
+        preco = '00'
         global date
         date = datetime.datetime.now()
         date = "%d %d %d" % (date.year, date.month, date.day)
@@ -82,7 +84,7 @@ class Handler(Gtk.Window):
         print("Fazendo leitura inicial da base de token")
         config_read()
 
-    # Funções de Handler
+    # Funcões de Handler
     #   Termina o programa
     def on_delete_window(*args):
         print("Terminando programa")
@@ -167,20 +169,20 @@ class Handler(Gtk.Window):
             hora2 = temp
             print(hora2)
 
-    # Pega o texto de preço
-    def on_preço_changed(self, pre):
-        global preço
+    # Pega o texto de preco
+    def on_preco_changed(self, pre):
+        global preco
         temp = pre.get_text()
         r = re.compile('\d{2}')
         if r.match(temp):
-            preço = temp
-            print(preço)
+            preco = temp
+            print(preco)
             Gtk.Statusbar.push(status, 0, '')
         else:
-            Gtk.Statusbar.push(status, 0, 'Formato de preço inválido')
-            print("formato de preço inválido")
+            Gtk.Statusbar.push(status, 0, 'Formato de preco inválido')
+            print("formato de preco inválido")
 
-    # Executar ação ao clicar em alguma coisa nos resultados
+    # Executar acão ao clicar em alguma coisa nos resultados
     def tree_click(self, path, column, data):
         model = Gtk.TreeView.get_model(path)
         nome = builder.get_object("nome_carona")
@@ -194,7 +196,7 @@ class Handler(Gtk.Window):
         texto.set_text(model[column][5])
         link.set_uri(model[column][4])
 
-        # ("Likes", "Inbox", "Hora", "Preço", 'Link', "Texto", 'Disponibilidade', 'Nome')
+        # ("Likes", "Inbox", "Hora", "Preco", 'Link', "Texto", 'Disponibilidade', 'Nome')
 
         response = postwindow.run()
         if not response:
@@ -250,7 +252,7 @@ def test_token():
     graph = GraphAPI(token)
     print("Testando token")
     try:
-        graph.get('me', retry=2)
+        graph.get_object('me', retry=2)
         print("Token válido")
         config_write()
     except:
@@ -267,7 +269,7 @@ def down_source():
     graph = GraphAPI(token)
     #global source
     try:
-        source = (graph.get('114497825365282/feed'))
+        source = (graph.get_object('114497825365282/feed'))
     except:
         Gtk.Statusbar.push(status, 0, 'Seu token parece estar errado...')
         print("Erro de exception na hora de puxar feed")
@@ -311,22 +313,22 @@ def pesquisa_hora(string):
 
 
 def pesquisa_palavra(palavra, string):
-    posição = re.search(palavra, string, re.I)
+    posicão = re.search(palavra, string, re.I)
 
-    if posição:
-        return posição.start()
+    if posicão:
+        return posicão.start()
     else:
-        #   Ciclar abreviações de cidades
+        #   Ciclar abreviacões de cidades
         for cidade in abrev_cidades:
             if re.match(palavra, cidade, re.I):
                 for abrev in abrev_cidades[cidade]:
-                    posição = re.search(abrev, string, re.I)
-                    if posição:
-                        return posição.start()
+                    posicão = re.search(abrev, string, re.I)
+                    if posicão:
+                        return posicão.start()
         return -1
 
 
-def pesquisa_preço(string):
+def pesquisa_preco(string):
     s1 = re.findall(r"((\d+(,\d+)?)(?= reais))", string, re.I)
     s2 = re.findall(r"(?<=\$)((\s+)?\d+)", string, re.I)
     if s1:
@@ -341,13 +343,13 @@ def pesquisa_dia():
     #   fazer algo com a date
     return 1
 
-#   Aplicação de filtros
+#   Aplicacão de filtros
 def filtrar_tipo():
     print("Filtrando tipo")
     pesq_iter = 0
     source = down_source()
     for data in source['data']:
-        if re.search(tipo, str(data), re.I) and not re.search('lotad', str(data), re.I):
+        if re.search(unidecode(tipo), unidecode(str(data)), re.I) and not re.search('lotad', str(data), re.I):
             temp_message = data["message"]
             temp_id = data["id"]
             pesq_iter += 1
@@ -357,24 +359,24 @@ def filtrar_tipo():
     Gtk.Statusbar.push(status, 0, 'Finalizado')
 
 
-def filtrar_preço(pesq_iter, temp_message):
-    global temp_preço
-    temp_preço = pesquisa_preço(temp_message)
-    if 0 <= temp_preço <= int(preço):
-        print("Iteração %d preço %d" % (pesq_iter, temp_preço))
+def filtrar_preco(pesq_iter, temp_message):
+    global temp_preco
+    temp_preco = pesquisa_preco(temp_message)
+    if 0 <= temp_preco <= int(preco):
+        print("Iteracão %d preco %d" % (pesq_iter, temp_preco))
         return 1
     else:
-        print("Iteração %d preço não bate" % pesq_iter)
+        print("Iteracão %d preco não bate" % pesq_iter)
         return 0
 
 
 def filtrar_ori_dest(pesq_iter, temp_message):
     if 0 <= pesquisa_palavra(saindo, unidecode(temp_message)) <= pesquisa_palavra(indo, unidecode(temp_message)):
         #   Não precisa adicionar nada à matriz, só continuar
-        print("Iteração %d origem e destino OK" % pesq_iter)
+        print("Iteracão %d origem e destino OK" % pesq_iter)
         return 1
     else:
-        print("Iteração %d origem e destino errados" % pesq_iter)
+        print("Iteracão %d origem e destino errados" % pesq_iter)
         return 0
 
 
@@ -383,11 +385,11 @@ def filtrar_hora(pesq_iter, temp_message):
     temp_hora = pesquisa_hora(temp_message)
     try:
         if converter_hora(hora1) <= converter_hora(temp_hora) <= converter_hora(hora2):
-            print("Iteração %d hora %s" % (pesq_iter, temp_hora))
+            print("Iteracão %d hora %s" % (pesq_iter, temp_hora))
             return 1
-        print("Iteração %d hora não bate" % pesq_iter)
+        print("Iteracão %d hora não bate" % pesq_iter)
     except:
-        print("Iteração %d hora não existe" % pesq_iter)
+        print("Iteracão %d hora não existe" % pesq_iter)
     return 0
 
 
@@ -397,22 +399,22 @@ def filtrar_dia(pesq_iter, temp_message):
     return 1
 
 def aplicar_filtos(pesq_iter, temp_id, temp_message):
-    if filtrar_hora(pesq_iter, temp_message) and filtrar_preço(pesq_iter, temp_message) \
+    if filtrar_hora(pesq_iter, temp_message) and filtrar_preco(pesq_iter, temp_message) \
             and filtrar_ori_dest(pesq_iter, temp_message) and filtrar_dia(pesq_iter, temp_message):
         coef, name, likes, comments = proc_likes(temp_id)
         link = 'https://facebook.com/' + temp_id
         print(temp_hora)
-        print(temp_preço)
+        print(temp_preco)
         print(link)
         print("O coeficiente de disponibilidade é: %d" % coef)
         print(name)
-        # ("Likes", "Inbox", "Hora", "Preço", 'Link', "Texto", 'Disponibilidade', 'Nome')
-        entry = [str(likes), str(comments), str(temp_hora), str('R$ ' + str(temp_preço)), str(link), str(temp_message), str(coef), str(name)]
+        # ("Likes", "Inbox", "Hora", "Preco", 'Link', "Texto", 'Disponibilidade', 'Nome')
+        entry = [str(likes), str(comments), str(temp_hora), str('R$ ' + str(temp_preco)), str(link), str(temp_message), str(coef), str(name)]
         lista.append(list(entry))
 
 def proc_likes(temp_id):
     graph = GraphAPI(token)
-    l_source = (graph.get(temp_id + '?fields=likes,comments,from'))
+    l_source = (graph.get_object(temp_id + '?fields=likes,comments,from'))
     try:
         likes = len(l_source['likes']['data'])
     except KeyError:

@@ -147,7 +147,6 @@
                     </child>
                     <child>
                       <object class="GtkTreeViewColumn" id="hora_tree">
-                        <property name="resizable">True</property>
                         <property name="sizing">fixed</property>
                         <property name="fixed_width">64</property>
                         <property name="title" translatable="yes">Hora</property>
@@ -165,7 +164,6 @@
                     </child>
                     <child>
                       <object class="GtkTreeViewColumn" id="preço_tree">
-                        <property name="resizable">True</property>
                         <property name="sizing">fixed</property>
                         <property name="fixed_width">67</property>
                         <property name="title" translatable="yes">Preço</property>
@@ -215,7 +213,6 @@
                     </child>
                     <child>
                       <object class="GtkTreeViewColumn" id="disponibilidade_tree">
-                        <property name="resizable">True</property>
                         <property name="sizing">fixed</property>
                         <property name="fixed_width">135</property>
                         <property name="title" translatable="yes">Disponibilidade</property>

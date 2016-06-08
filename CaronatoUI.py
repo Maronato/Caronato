@@ -14,43 +14,11 @@ print("Dependências carregadas")
 
 '''     Consideracões
 
-- Quando clicar duas vezes no item, mostrar uma nova janela com a mensagem original e com um link pro post(pensar em
-adicionar botão pra dar like, comentar, etc) (aprender como aplicar text wrap pra fazer a mensagem ficar na linha
+Pesquisar ao apertar enter
 
--Na hora de aplicar os filtros de destino e pá, usar o module Unidecode pra remover os acentos tanto do texto original
-quanto do texto que vai ser pesquisado. Assim é possível comparar os dois de forma completa.
+Debugar as travadas: acho que são no fetch do facebook. Verificar se é problema no meu código ou na api.
+Experimentar timeouts para sair do bug
 
--Na hora de pesquisar textos, descobrir forma de verificar a posicão do texto na string pra saber qual veio antes de
-qual. Assim é possível ter uma boa ideia de qual o destino e origem.
-
-Pensar em forma de ler texto antes e depois de valores e datas para saber se são valores ou datas. Isso pode ser bem
-complicado e vou provavelmente quebrar bastante a cabeca com isso. Além disso, não esquecer de pesquisar usando o dia
-da semana também. Possivelmente criar uma funcão especializada em pesquisar apenas uma dada string no texto e retornar
-a posicão dela, se ela existe e pá. Com essa funcão eu poderia, em outras funcões, processar melhor o texto para
-descobrir informacões.
--Por exemplo: Quero pesquisar a cidade de origem e destino. Crio uma funcão que vai cuidar dessa parte (origem/destino)
-e uso a funcão de pesquisa para localizar onde estão as palavras(se existirem) Depois disso eu identifico qual é origem
-e qual é destino pela posicão relativa de uma e da outra.
--Por exemplo 2: quero pesquisar por um valor de preco. Uso a funcão de pesquisa para encontrar todos os números iguais ou
-menores que esse que não são os da hora(talvez fique complicada essa parte, pois vou ter que saber exatamente onde
- comeca e termina a informacão da hora para depois pesquisar pelo preco em uma região que não seja essa) e checar,
-usando a funcão de pesquisa, onde tem 'reais' ou 'R$'. Ambos devem estar imediatamente depois ou antes, respectivamente,
-do valor encontrado.
-
--Criar funcão para converter horas de 12:00 para datetime e/ou 12h para datetime. Fácil. só identificar que tipo é e
-aplicar um if para saber o formato. Comparar esse horario com o horário especificado
-
--No popup que vai mostrar o texto, considerar mostrar o nome da pessoa também. Vai que tem gente que prefere mulher, sl
-
--Considerar, ao invés de mostrar o número de likes e inbox no treeview, o fazer no popup. No treeview mostrar um
-"coeficiente de vaga" que vai, sei lá, somar o numero de likes e dividir por 8 (2*4), multiplicar por 5, subtrair 5 e
-tirar o módulo == |(vagas+inbox)*5/8 - 5| Dessa forma eu vou ter um valor que vai de 5 até menos que zero e representa,
-nessa escala, as chances de ainda ter vaga disponível na carona. Se for 5 então as chances são altas, e se for <=0 são
- muito baixas. Usar estrelhinhas (?) para representar isso.
-
- Pensar em uma forma de ter o 'sort' padrão da treeview nas estrelhinhas (pensar em nome para dar para essa coluna)
-
-Remover 'resizable' do treeflow
 '''
 
 version = 0.85
